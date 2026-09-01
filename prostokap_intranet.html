@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProstoKap — внутренний портал</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F5F1E8;
+    --bg-card: #FFFFFF;
+    --ink: #171717;
+    --ink-soft: #68665F;
+    --green: #0E6B4D;
+    --green-dark: #084B37;
+    --green-soft: #DDEDE5;
+    --yellow: #F3C84B;
+    --coral: #E86A4A;
+    --kraft: #D9C5A4;
+    --line: #E3DED3;
+    --radius-lg: 18px;
+    --radius-sm: 10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,h4{
+    font-family: 'Manrope', sans-serif;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  a{color:inherit; text-decoration:none;}
+  ::selection{background: var(--yellow); color: var(--ink);}
+
+  .app{
+    display:grid;
+    grid-template-columns: 240px 1fr;
+    min-height:100vh;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    background: var(--ink);
+    color: #F5F1E8;
+    padding: 28px 18px;
+    display:flex;
+    flex-direction:column;
+    position: sticky;
+    top:0;
+    height:100vh;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 4px 8px 28px 8px;
+  }
+  .brand-mark{
+    width:34px;height:34px;
+    border-radius: 10px;
+    background: var(--green);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    flex-shrink:0;
+  }
+  .brand-name{
+    font-family:'Manrope', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:#fff;
+  }
+  .brand-sub{
+    font-size:11px;
+    color:#9A958A;
+    margin-top:1px;
+  }
+  nav{display:flex; flex-direction:column; gap:3px; margin-top: 6px;}
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding: 11px 12px;
+    border-radius: var(--radius-sm);
+    font-size:14.5px;
+    font-weight:500;
+    color: #D9D2C2;
+    cursor:pointer;
+    border:none;
+    background:none;
+    width:100%;
+    text-align:left;
+    transition: background .15s ease, color .15s ease;
+  }
+  .nav-item:hover{ background: rgba(255,255,255,0.06); color:#fff; }
+  .nav-item.active{
+    background: #F5F1E8;
+    color: var(--ink);
+  }
+  .nav-icon{ width:20px; text-align:center; font-size:16px; flex-shrink:0; }
+
+  .sidebar-footer{
+    margin-top:auto;
+    padding: 14px 12px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .avatar{
+    width:36px;height:36px;border-radius:50%;
+    background: linear-gradient(135deg, var(--green), #53A47E);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700; color:#fff; font-size:14px; flex-shrink:0;
+  }
+  .user-name{ font-size:13.5px; font-weight:600; color:#fff;}
+  .user-role{ font-size:11.5px; color:#9A958A;}
+
+  /* ---------- MAIN ---------- */
+  main{
+    padding: 36px 44px 60px 44px;
+    max-width: 1180px;
+  }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom: 30px;
+    gap: 20px;
+  }
+  .greeting h1{ font-size: 30px; font-weight:700; }
+  .greeting p{ margin:6px 0 0 0; color: var(--ink-soft); font-size:14.5px; }
+  .today-pill{
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 9px 18px;
+    font-size:13px;
+    font-weight:600;
+    color: var(--ink-soft);
+    white-space:nowrap;
+  }
+
+  .section{ display:none; }
+  .section.active{ display:block; }
+
+  /* Cards */
+  .card{
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+  }
+  .grid-2{ display:grid; grid-template-columns: 1.6fr 1fr; gap:18px; }
+  .grid-3{ display:grid; grid-template-columns: repeat(3,1fr); gap:16px; }
+  .stack{ display:flex; flex-direction:column; gap:16px; }
+
+  /* Home hero */
+  .hero{
+    background: var(--ink);
+    color:#fff;
+    border-radius: var(--radius-lg);
+    padding: 30px 32px;
+    position:relative;
+    overflow:hidden;
+    margin-bottom: 20px;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; right:-40px; top:-60px;
+    width:220px; height:220px; border-radius:50%;
+    background: radial-gradient(circle, rgba(255,201,60,0.35), transparent 70%);
+  }
+  .hero .eyebrow-tag{
+    display:inline-block;
+    background: var(--yellow); color:var(--ink);
+    font-size:12px; font-weight:700;
+    padding:4px 11px; border-radius:100px;
+    margin-bottom:14px;
+  }
+  .hero h2{ font-size:24px; max-width:520px; line-height:1.35; font-weight:600; }
+  .hero p{ color:#C9C2B2; margin-top:10px; max-width:480px; font-size:14px; line-height:1.6;}
+
+  .section-title{
+    font-size:19px; font-weight:700; margin-bottom:14px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .section-title .count{ font-size:13px; font-weight:500; color:var(--ink-soft); }
+
+  /* News */
+  .news-item{ padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .news-item:last-child{ border-bottom:none; }
+  .news-tag{
+    display:inline-block; font-size:11px; font-weight:700;
+    padding:3px 9px; border-radius:100px; margin-bottom:8px;
+  }
+  .tag-product{ background:#E3F0EA; color: var(--green-dark); }
+  .tag-people{ background:#FFEFE0; color:#C25E00; }
+  .tag-culture{ background:#FBE7E1; color:#B64D35; }
+  .news-item h4{ font-size:15.5px; font-weight:600; margin-bottom:5px; }
+  .news-item p{ margin:0; font-size:13.5px; color:var(--ink-soft); line-height:1.55; }
+  .news-meta{ font-size:12px; color:#9A958A; margin-top:8px; }
+
+  /* quick links / birthdays widget */
+  .widget-title{ font-size:14px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px;}
+  .bday-row{ display:flex; align-items:center; gap:10px; padding:8px 0; }
+  .bday-row .avatar{ width:30px; height:30px; font-size:12px; }
+  .bday-row .name{ font-size:13.5px; font-weight:600; }
+  .bday-row .date{ font-size:12px; color:var(--ink-soft); margin-left:auto; }
+
+  .quick-link{
+    display:flex; align-items:center; gap:10px;
+    padding: 10px 12px; border-radius: var(--radius-sm);
+    font-size:13.5px; font-weight:600;
+    background: var(--bg);
+    margin-bottom:8px;
+    cursor:pointer;
+  }
+  .quick-link:hover{ background: #EDE6D8; }
+
+  /* Directory */
+  .search-bar{
+    display:flex; gap:10px; margin-bottom:20px;
+  }
+  .search-bar input, .search-bar select{
+    font-family:'Inter';
+    font-size:14px;
+    padding:11px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: var(--bg-card);
+  }
+  .search-bar input{ flex:1; }
+  .person-card{
+    display:flex; align-items:center; gap:12px;
+    padding:16px; text-align:left;
+  }
+  .person-card .avatar{ width:46px; height:46px; font-size:16px; }
+  .person-card h4{ font-size:14.5px; font-weight:700; }
+  .person-card .role{ font-size:12.5px; color: var(--ink-soft); margin-top:2px;}
+  .person-card .dept{
+    font-size:11px; font-weight:700; margin-top:8px;
+    display:inline-block; padding:3px 9px; border-radius:100px;
+  }
+
+  /* Org chart */
+  .org-chart{ display:flex; flex-direction:column; align-items:center; gap:10px; padding: 20px 0;}
+  .org-node{
+    background:var(--bg-card); border:1px solid var(--line);
+    border-radius: var(--radius-sm); padding:12px 20px;
+    text-align:center; font-size:13.5px; font-weight:700;
+  }
+  .org-node .sub{ font-weight:500; color:var(--ink-soft); font-size:11.5px; margin-top:2px;}
+  .org-row{ display:flex; gap:24px; position:relative; padding-top:24px;}
+  .org-row::before{
+    content:""; position:absolute; top:0; left:50%; right:50%; height:24px;
+  }
+  .connector{ width:1px; height:20px; background: var(--line); }
+
+  /* Documents */
+  .doc-row{
+    display:flex; align-items:center; gap:14px;
+    padding: 14px 4px; border-bottom:1px solid var(--line);
+  }
+  .doc-row:last-child{ border-bottom:none; }
+  .doc-icon{
+    width:38px;height:38px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px; flex-shrink:0;
+  }
+  .doc-row h4{ font-size:14px; font-weight:600; }
+  .doc-row .meta{ font-size:12px; color: var(--ink-soft); margin-top:2px;}
+  .doc-cat{
+    margin-left:auto; font-size:11.5px; font-weight:700; color:var(--ink-soft);
+    background: var(--bg); padding:4px 10px; border-radius:100px; white-space:nowrap;
+  }
+
+  /* Learning */
+  .course-card{ padding:0; overflow:hidden; }
+  .course-banner{
+    height:86px; display:flex; align-items:center; justify-content:center; font-size:30px;
+  }
+  .course-body{ padding:16px; }
+  .course-card h4{ font-size:14.5px; font-weight:700; margin-bottom:6px;}
+  .course-card p{ font-size:12.5px; color:var(--ink-soft); margin:0 0 12px 0; line-height:1.5;}
+  .progress-track{ height:6px; background:var(--bg); border-radius:100px; overflow:hidden; margin-bottom:6px;}
+  .progress-fill{ height:100%; border-radius:100px; background: var(--green); }
+  .progress-label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; }
+
+  .onboard-step{ display:flex; gap:14px; padding: 14px 0; border-bottom:1px solid var(--line); }
+  .onboard-step:last-child{ border-bottom:none; }
+  .step-check{
+    width:24px;height:24px;border-radius:50%; flex-shrink:0; margin-top:1px;
+    display:flex;align-items:center;justify-content:center; font-size:12px; font-weight:700;
+  }
+  .step-check.done{ background: var(--green); color:#fff; }
+  .step-check.todo{ background: var(--bg); border:1.5px solid var(--line); color: transparent;}
+  .onboard-step h4{ font-size:14px; font-weight:600; }
+  .onboard-step p{ font-size:12.5px; color: var(--ink-soft); margin:3px 0 0 0; }
+
+  /* Jobs */
+  .job-row{ padding: 18px 4px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:16px;}
+  .job-row:last-child{ border-bottom:none; }
+  .job-row h4{ font-size:15px; font-weight:700; }
+  .job-meta{ font-size:12.5px; color: var(--ink-soft); margin-top:5px; display:flex; gap:14px; flex-wrap:wrap;}
+  .job-badge{
+    font-size:11px; font-weight:700; padding:3px 9px; border-radius:100px;
+    background:#E3F0EA; color:var(--green-dark); margin-right:8px;
+  }
+  .btn{
+    background: var(--ink); color:#fff; font-weight:600; font-size:13px;
+    padding:10px 18px; border-radius:100px; border:none; cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn:hover{ background:#000; }
+  .btn-ghost{
+    background:transparent; color:var(--ink); border:1.5px solid var(--line);
+  }
+
+  /* Events */
+  .event-row{ display:flex; gap:16px; padding:16px 0; border-bottom:1px solid var(--line); }
+  .event-row:last-child{ border-bottom:none; }
+  .event-date{
+    width:54px; height:54px; border-radius: var(--radius-sm);
+    background: var(--bg); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .event-date .d{ font-size:18px; font-weight:800; line-height:1; font-family:'Manrope'; }
+  .event-date .m{ font-size:10px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; }
+  .event-row h4{ font-size:14.5px; font-weight:700; }
+  .event-row .meta{ font-size:12.5px; color:var(--ink-soft); margin-top:4px; }
+
+  @media (max-width: 860px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{ position:relative; height:auto; flex-direction:row; overflow-x:auto; padding:14px; }
+    .brand{ display:none; }
+    nav{ flex-direction:row; }
+    .sidebar-footer{ display:none; }
+    main{ padding:24px 18px; }
+    .grid-2, .grid-3{ grid-template-columns:1fr; }
+  }
+
+  .brand-mark{font-size:12px!important;font-weight:800;letter-spacing:-.03em;}
+  .hero{background:var(--green-dark);}
+  .hero::after{background:radial-gradient(circle, rgba(243,200,75,.32), transparent 70%);}
+  .btn{background:var(--green);}
+  .btn:hover{background:var(--green-dark);}
+  .quick-link{transition:transform .12s ease, background .12s ease;}
+  .quick-link:hover{transform:translateY(-1px);}
+  .search-bar input:focus,.search-bar select:focus{outline:2px solid rgba(14,107,77,.18);border-color:var(--green);}
+  .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;}
+  .demo-note{font-size:11px;color:#8B867B;margin-top:10px;}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">PK</div>
+      <div>
+        <div class="brand-name">PROSTOKAP</div>
+        <div class="brand-sub">внутренний портал</div>
+      </div>
+    </div>
+    <nav>
+      <button class="nav-item active" data-section="home"><span class="nav-icon">🏠</span> Главная</button>
+      <button class="nav-item" data-section="news"><span class="nav-icon">●</span> Новости</button>
+      <button class="nav-item" data-section="people"><span class="nav-icon">◉</span> Команда</button>
+      <button class="nav-item" data-section="docs"><span class="nav-icon">▤</span> База знаний</button>
+<button class="nav-item" data-section="processes"><span class="nav-icon">→</span> Процессы</button>
+      <button class="nav-item" data-section="learning"><span class="nav-icon">↗</span> Обучение</button>
+      <button class="nav-item" data-section="jobs"><span class="nav-icon">+</span> Заявки</button>
+      <button class="nav-item" data-section="events"><span class="nav-icon">□</span> Календарь</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">АК</div>
+      <div>
+        <div class="user-name">Анна Ковалёва</div>
+        <div class="user-role">HR-менеджер</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- ===== HOME ===== -->
+    <section class="section active" id="home">
+      <div class="topbar">
+        <div class="greeting">
+          <h1>Привет, Анна 👋</h1>
+          <p>Всё важное для работы — в одном месте. Быстро, понятно, без лишней бюрократии.</p>
+        </div>
+        <div class="today-pill">01 СЕНТ · ВТОРНИК</div>
+      </div>
+
+      <div class="hero">
+        <span class="eyebrow-tag">PROSTOKAP · ВНУТРИ</span>
+        <h2>Работаем быстро. Решаем по делу. Делаем результат.</h2>
+        <p>Производство полного цикла, цифровые процессы и команда, которая не любит ждать. Здесь собраны люди, процессы, документы и заявки.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title">Что происходит <span class="count">3 новых</span></div>
+
+          <div class="news-item">
+            <span class="news-tag tag-product">Продукт</span>
+            <h4>Обновили внутренний процесс согласования заказов</h4>
+            <p>Теперь на каждом этапе видно ответственного, статус и следующий шаг.</p>
+            <div class="news-meta">Операционная команда · 2 дня назад</div>
+          </div>
+
+          <div class="news-item">
+            <span class="news-tag tag-people">Люди</span>
+            <h4>Новая инструкция по запуску заказа</h4>
+            <p>Собрали обязательные шаги от получения заявки до запуска в производство.</p>
+            <div class="news-meta">Операционная команда · 4 дня назад</div>
+          </div>
+
+          <div class="news-item">
+            <span class="news-tag tag-culture">Культура</span>
+            <h4>Диджитализация: что меняется в работе</h4>
+            <p>Новые инструменты должны сокращать ручную работу и давать актуальную информацию по статусам.</p>
+            <div class="news-meta">IT / Операции · неделю назад</div>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="widget-title">☕ Сегодня в команде</div>
+            <div class="bday-row"><div class="avatar" style="background:linear-gradient(135deg,var(--coral),var(--yellow))">МС</div><div class="name">Мария Соколова</div><div class="date">3 сент</div></div>
+            <div class="bday-row"><div class="avatar" style="background:linear-gradient(135deg,var(--green),#53A47E)">ИП</div><div class="name">Игорь Петров</div><div class="date">5 сент</div></div>
+            <div class="bday-row"><div class="avatar" style="background:linear-gradient(135deg,var(--green),#9BCFB4)">ЕВ</div><div class="name">Елена Волкова</div><div class="date">6 сент</div></div>
+          </div>
+
+          <div class="card">
+            <div class="widget-title">Быстрые действия</div>
+            <div class="quick-link">＋ Создать заявку</div>
+            <div class="quick-link">→ Найти ответственного</div>
+            <div class="quick-link">▤ Открыть регламент</div>
+            <div class="quick-link">⌕ Найти документ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NEWS ===== -->
+    <section class="section" id="news">
+      <div class="topbar"><div class="greeting"><h1>Новости компании</h1><p>Что происходит в «Гнезде» прямо сейчас</p></div></div>
+      <div class="card">
+        <div class="news-item">
+          <span class="news-tag tag-product">Продукт</span>
+          <h4>Обновили внутренний процесс согласования заказов</h4>
+          <p>Обновили интерфейс, ускорили загрузку в 2 раза и добавили автоматические напоминания о дедлайнах. Обратная связь — в канале #product-feedback.</p>
+          <div class="news-meta">Операционная команда · 2 дня назад</div>
+        </div>
+        <div class="news-item">
+          <span class="news-tag tag-people">Люди</span>
+          <h4>Новая инструкция по запуску заказа</h4>
+          <p>Познакомьтесь с ними на странице «Сотрудники» — у каждого есть короткое интро и любимый плейлист для работы.</p>
+          <div class="news-meta">Операционная команда · 4 дня назад</div>
+        </div>
+        <div class="news-item">
+          <span class="news-tag tag-culture">Культура</span>
+          <h4>Диджитализация: что меняется в работе</h4>
+          <p>Средний балл вырос до 8.4 из 10. Больше всего сотрудники отметили гибкость графика и поддержку руководителей.</p>
+          <div class="news-meta">IT / Операции · неделю назад</div>
+        </div>
+        <div class="news-item">
+          <span class="news-tag tag-product">Продукт</span>
+          <h4>Планируем миграцию на новую CRM в октябре</h4>
+          <p>Обучающие сессии для отдела продаж начнутся с 15 сентября. Расписание появится в разделе «Обучение».</p>
+          <div class="news-meta">IT-команда · 10 дней назад</div>
+        </div>
+        <div class="news-item">
+          <span class="news-tag tag-culture">Культура</span>
+          <h4>Открыт сбор идей для корпоратива в честь конца года</h4>
+          <p>Поделитесь предложениями в форме — учтём самые популярные при выборе формата и площадки.</p>
+          <div class="news-meta">HR-команда · 2 недели назад</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PEOPLE ===== -->
+    <section class="section" id="people">
+      <div class="topbar"><div class="greeting"><h1>Команда</h1><p>Найдите человека, роль или зону ответственности</p></div></div>
+
+      <div class="search-bar">
+        <input type="text" placeholder="Найти коллегу, должность или компетенцию...">
+        <select><option>Все отделы</option><option>Продажи</option><option>Производство</option><option>Логистика</option><option>Финансы</option><option>HR</option><option>IT</option></select>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:24px;">
+        <div class="card person-card">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--green),#53A47E)">ДН</div>
+          <div><h4>Дмитрий Новиков</h4><div class="role">Product Manager</div><span class="dept" style="background:#E3F0EA;color:var(--green-dark)">Продукт</span></div>
+        </div>
+        <div class="card person-card">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--coral),var(--yellow))">МС</div>
+          <div><h4>Мария Соколова</h4><div class="role">Marketing Lead</div><span class="dept" style="background:#FBE7E1;color:#B64D35">Маркетинг</span></div>
+        </div>
+        <div class="card person-card">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--green),#9BCFB4)">ЕВ</div>
+          <div><h4>Елена Волкова</h4><div class="role">Sales Manager</div><span class="dept" style="background:#E3F0EA;color:#0E6B4D">Продажи</span></div>
+        </div>
+        <div class="card person-card">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--yellow),#F39A63)">ИП</div>
+          <div><h4>Игорь Петров</h4><div class="role">Backend Engineer</div><span class="dept" style="background:#FFF4D5;color:#8A6500">IT</span></div>
+        </div>
+        <div class="card person-card">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--coral),#F2A08D)">АК</div>
+          <div><h4>Анна Ковалёва</h4><div class="role">HR Manager</div><span class="dept" style="background:#FBE7E1;color:#B64D35">HR</span></div>
+        </div>
+        <div class="card person-card">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--green),#8FD3F4)">СЛ</div>
+          <div><h4>Сергей Лебедев</h4><div class="role">Frontend Engineer</div><span class="dept" style="background:#FFF4D5;color:#8A6500">IT</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Оргструктура</div>
+        <div class="org-chart">
+          <div class="org-node">Ольга Романова <div class="sub">CEO</div></div>
+          <div class="connector"></div>
+          <div class="org-row">
+            <div class="org-node">Дмитрий Новиков <div class="sub">Head of Product</div></div>
+            <div class="org-node">Мария Соколова <div class="sub">Head of Marketing</div></div>
+            <div class="org-node">Елена Волкова <div class="sub">Head of Sales</div></div>
+            <div class="org-node">Анна Ковалёва <div class="sub">HR Manager</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ===== PROCESSES ===== -->
+    <section class="section" id="processes">
+      <div class="topbar">
+        <div class="greeting">
+          <h1>Процессы</h1>
+          <p>Кто за что отвечает и что происходит на каждом этапе</p>
+        </div>
+      </div>
+
+      <div class="hero" style="margin-bottom:18px;">
+        <span class="eyebrow-tag">БЕЗ БЮРОКРАТИИ</span>
+        <h2>Один процесс — один понятный следующий шаг.</h2>
+        <p>Используйте эту страницу как единую точку входа в операционные процессы. Здесь не нужно угадывать, кому писать и что делать дальше.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title">Путь заказа <span class="count">7 этапов</span></div>
+          <div class="onboard-step"><div class="step-check done">1</div><div><h4>Заявка</h4><p>Получаем состав заказа, макет и данные для доставки.</p></div></div>
+          <div class="onboard-step"><div class="step-check done">2</div><div><h4>Расчёт</h4><p>Формируем предложение и фиксируем условия.</p></div></div>
+          <div class="onboard-step"><div class="step-check done">3</div><div><h4>Согласование</h4><p>Проверяем макет и ключевые параметры заказа.</p></div></div>
+          <div class="onboard-step"><div class="step-check todo">4</div><div><h4>Подготовка производства</h4><p>Передаём заказ в работу ответственным сотрудникам.</p></div></div>
+          <div class="onboard-step"><div class="step-check todo">5</div><div><h4>Производство</h4><p>Заказ проходит производственный цикл и контроль качества.</p></div></div>
+          <div class="onboard-step"><div class="step-check todo">6</div><div><h4>Логистика</h4><p>Готовим отгрузку и доставку.</p></div></div>
+          <div class="onboard-step"><div class="step-check todo">7</div><div><h4>Закрытие</h4><p>Фиксируем результат и передаём информацию дальше.</p></div></div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="widget-title">Кто за что отвечает</div>
+            <div class="quick-link">Продажи → клиент и заказ</div>
+            <div class="quick-link">Технолог → проверка макета</div>
+            <div class="quick-link">Производство → выпуск</div>
+            <div class="quick-link">Логистика → доставка</div>
+            <div class="quick-link">Финансы → оплата и документы</div>
+          </div>
+          <div class="card">
+            <div class="widget-title">Что важно помнить</div>
+            <p style="font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:0;">
+              ProstoKap делает ставку на короткие сроки, автоматизацию и решения без лишней бюрократии.
+              Внутренний портал должен работать по тому же принципу: меньше ручной координации, больше прозрачности.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DOCS ===== -->
+    <section class="section" id="docs">
+      <div class="topbar"><div class="greeting"><h1>База знаний</h1><p>Регламенты, инструкции, шаблоны и ответы на рабочие вопросы</p></div></div>
+      <div class="card">
+        <div class="doc-row">
+          <div class="doc-icon" style="background:#E3F0EA;color:var(--green-dark)">📘</div>
+          <div><h4>Справочник сотрудника 2026</h4><div class="meta">Обновлён 15 августа · PDF, 2.4 МБ</div></div>
+          <span class="doc-cat">Общее</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-icon" style="background:#FBE7E1;color:#B64D35">🏖️</div>
+          <div><h4>Политика отпусков и больничных</h4><div class="meta">Обновлена 3 июля · PDF, 640 КБ</div></div>
+          <span class="doc-cat">HR</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-icon" style="background:#FFF4D5;color:#8A6500">💻</div>
+          <div><h4>Политика удалённой работы</h4><div class="meta">Обновлена 20 июня · PDF, 480 КБ</div></div>
+          <span class="doc-cat">HR</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-icon" style="background:#E3F0EA;color:#0E6B4D">🧾</div>
+          <div><h4>Регламент возмещения расходов</h4><div class="meta">Обновлён 12 мая · PDF, 320 КБ</div></div>
+          <span class="doc-cat">Финансы</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-icon" style="background:#E3F0EA;color:var(--green-dark)">🔒</div>
+          <div><h4>Политика информационной безопасности</h4><div class="meta">Обновлена 1 апреля · PDF, 890 КБ</div></div>
+          <span class="doc-cat">IT</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-icon" style="background:#FBE7E1;color:#B64D35">🤝</div>
+          <div><h4>Кодекс корпоративной этики</h4><div class="meta">Обновлён 10 марта · PDF, 410 КБ</div></div>
+          <span class="doc-cat">Общее</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== LEARNING ===== -->
+    <section class="section" id="learning">
+      <div class="topbar"><div class="greeting"><h1>Обучение и адаптация</h1><p>Обучение, адаптация и инструкции по работе</p></div></div>
+
+      <div class="section-title">Мой план</div>
+      <div class="grid-3" style="margin-bottom:28px;">
+        <div class="card course-card">
+          <div class="course-banner" style="background:#E3F0EA;">📊</div>
+          <div class="course-body">
+            <h4>Онбординг: ProstoKap</h4>
+            <p>Что важно знать новому сотруднику</p>
+            <div class="progress-track"><div class="progress-fill" style="width:70%;"></div></div>
+            <div class="progress-label">7 из 10 уроков</div>
+          </div>
+        </div>
+        <div class="card course-card">
+          <div class="course-banner" style="background:#FBE7E1;">🗣️</div>
+          <div class="course-body">
+            <h4>Рабочие процессы</h4>
+            <p>Как устроен путь заказа и кто за что отвечает</p>
+            <div class="progress-track"><div class="progress-fill" style="width:30%; background:var(--yellow);"></div></div>
+            <div class="progress-label">3 из 10 уроков</div>
+          </div>
+        </div>
+        <div class="card course-card">
+          <div class="course-banner" style="background:#FFF4D5;">🔐</div>
+          <div class="course-body">
+            <h4>Информационная безопасность</h4>
+            <p>Обязательный курс для всех сотрудников</p>
+            <div class="progress-track"><div class="progress-fill" style="width:100%;"></div></div>
+            <div class="progress-label">Завершено ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">План адаптации новых сотрудников</div>
+      <div class="card">
+        <div class="onboard-step">
+          <div class="step-check done">✓</div>
+          <div><h4>День 1 — Знакомство с командой</h4><p>Приветственная встреча, экскурсия по офису, выдача техники</p></div>
+        </div>
+        <div class="onboard-step">
+          <div class="step-check done">✓</div>
+          <div><h4>Неделя 1 — Настройка рабочих инструментов</h4><p>Доступы, обучение по инструментам, знакомство с процессами</p></div>
+        </div>
+        <div class="onboard-step">
+          <div class="step-check todo"></div>
+          <div><h4>Неделя 2 — Первая встреча 1-на-1 с руководителем</h4><p>Обсуждение целей на испытательный срок</p></div>
+        </div>
+        <div class="onboard-step">
+          <div class="step-check todo"></div>
+          <div><h4>Месяц 1 — Обратная связь от команды</h4><p>Сбор впечатлений от коллег, корректировка плана</p></div>
+        </div>
+        <div class="onboard-step">
+          <div class="step-check todo"></div>
+          <div><h4>Месяц 3 — Итоги испытательного срока</h4><p>Финальная встреча с HR и руководителем</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== JOBS ===== -->
+    <section class="section" id="jobs">
+      <div class="topbar"><div class="greeting"><h1>Заявки</h1><p>Создавайте запросы и отслеживайте их статус без переписки по чатам</p></div></div>
+      <div class="card">
+        <div class="job-row">
+          <div>
+            <span class="job-badge">Продукт</span>
+            <h4>Заявка на закупку</h4>
+            <div class="job-meta"><span>Статус: на согласовании</span><span>Ответственный: закупки</span></div>
+          </div>
+          <button class="btn">Создать</button>
+        </div>
+        <div class="job-row">
+          <div>
+            <span class="job-badge" style="background:#FBE7E1;color:#B64D35">Маркетинг</span>
+            <h4>Заявка в IT</h4>
+            <div class="job-meta"><span>Статус: новая</span><span>Ответственный: IT</span></div>
+          </div>
+          <button class="btn">Создать</button>
+        </div>
+        <div class="job-row">
+          <div>
+            <span class="job-badge" style="background:#FFF4D5;color:#8A6500">IT</span>
+            <h4>Заявка в АХО</h4>
+            <div class="job-meta"><span>Статус: в работе</span><span>Ответственный: АХО</span></div>
+          </div>
+          <button class="btn">Создать</button>
+        </div>
+        <div class="job-row">
+          <div>
+            <span class="job-badge" style="background:#E3F0EA;color:#0E6B4D">Продажи</span>
+            <h4>Запрос на командировку</h4>
+            <div class="job-meta"><span>Статус: новая</span><span>Ответственный: HR</span></div>
+          </div>
+          <button class="btn">Создать</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EVENTS ===== -->
+    <section class="section" id="events">
+      <div class="topbar"><div class="greeting"><h1>Календарь</h1><p>Встречи, обучение, командировки и общие события</p></div></div>
+      <div class="card">
+        <div class="event-row">
+          <div class="event-date"><div class="d">04</div><div class="m">сен</div></div>
+          <div><h4>Общая встреча команды</h4><div class="meta">11:00–12:00 · Главный зал + онлайн-трансляция</div></div>
+        </div>
+        <div class="event-row">
+          <div class="event-date"><div class="d">09</div><div class="m">сен</div></div>
+          <div><h4>Обучение: работа с процессами</h4><div class="meta">15:00–16:00 · Переговорная «Клён»</div></div>
+        </div>
+        <div class="event-row">
+          <div class="event-date"><div class="d">18</div><div class="m">сен</div></div>
+          <div><h4>Встреча отдела продаж</h4><div class="meta">Весь день · Загород, автобус от офиса в 9:00</div></div>
+        </div>
+        <div class="event-row">
+          <div class="event-date"><div class="d">25</div><div class="m">сен</div></div>
+          <div><h4>Обучение по CRM</h4><div class="meta">14:00–15:30 · Онлайн</div></div>
+        </div>
+        <div class="event-row">
+          <div class="event-date"><div class="d">30</div><div class="m">сен</div></div>
+          <div><h4>Итоги месяца</h4><div class="meta">17:00–18:30 · Главный зал</div></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const sections = document.querySelectorAll('.section');
+
+  function openSection(id){
+    navItems.forEach(b => b.classList.toggle('active', b.dataset.section === id));
+    sections.forEach(s => s.classList.toggle('active', s.id === id));
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  navItems.forEach(btn => {
+    btn.addEventListener('click', () => openSection(btn.dataset.section));
+  });
+
+  // Local employee search in the prototype.
+  const peopleSearch = document.querySelector('.search-bar input');
+  if (peopleSearch) {
+    peopleSearch.addEventListener('input', () => {
+      const q = peopleSearch.value.trim().toLowerCase();
+      document.querySelectorAll('#people .person-card').forEach(card => {
+        card.style.display = card.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  }
+
+  // Demo buttons: make the prototype feel alive without a backend.
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.textContent = 'Создано ✓';
+      btn.style.background = 'var(--green-dark)';
+      setTimeout(() => btn.textContent = 'Создать', 1600);
+    });
+  });
+
+  document.querySelectorAll('.quick-link').forEach(item => {
+    item.addEventListener('click', () => {
+      const text = item.innerText.trim();
+      alert(text + '\\n\\nВ рабочей версии здесь будет форма/ссылка на соответствующий процесс.');
+    });
+  });
+</script>
+
+</body>
+</html>
